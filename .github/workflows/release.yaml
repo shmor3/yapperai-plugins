@@ -8,10 +8,11 @@ jobs:
     name: Build and Release Plug-ins
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
         
-      - uses: actions-rs/toolchain@v1
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
@@ -19,7 +20,7 @@ jobs:
       - name: Add wasm32-wasi target
         run: rustup target add wasm32-wasi
 
-      - name: Setup `wasm-tools`
+      - name: Set up wasm-tools
         uses: bytecodealliance/actions/wasm-tools/setup@v1
 
       - name: Build
@@ -28,3 +29,11 @@ jobs:
       - name: List directory contents
         run: |
           ls -la plugins
+
+      - name: Upload Artifact to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          if-no-files-found: error
+          files: |
+            plugins/*.wasm
+        if: startsWith(github.ref, 'refs/tags/')
