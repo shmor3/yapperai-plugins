@@ -28,11 +28,3 @@ jobs:
       - name: List directory contents
         run: |
           ls -la plugins
-
-      - name: Upload Artifact to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          if-no-files-found: error
-          files: |
-            plugins/*.wasm
-        if: startsWith(github.ref, 'refs/tags/')
