@@ -2,7 +2,6 @@ on:
   workflow_dispatch:
   release:
     types: [created]
-
 jobs:
   release:
     name: Build and Release Plug-ins
@@ -10,26 +9,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
       - name: Set up Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
-          
       - name: Add wasm32-wasi target
-        run: rustup target add wasm32-wasi
-
+        run: rustup target add wasm32-wasip1
       - name: Set up wasm-tools
         uses: bytecodealliance/actions/wasm-tools/setup@v1
-
       - name: Build
         run: make build
-
       - name: List directory contents
         run: |
           ls -la plugins
-
       - name: Upload Artifact to Release
         uses: softprops/action-gh-release@v1
         with:
