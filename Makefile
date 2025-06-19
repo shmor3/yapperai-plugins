@@ -22,7 +22,7 @@ build:
 	done
 
 # 	wasm32-wasi
-	@ls target/wasm32-wasi/release/*.wasm | while read name; do \
+	@ls target/wasm32-wasip1/release/*.wasm | while read name; do \
 		for i in $(wasi_white_list); do \
 			if [ "$$i" = "$$(basename $$name | sed 's/\.wasm//g')" ]; then \
 				cp $$name plugins/; \
@@ -30,7 +30,7 @@ build:
 		done; \
 	done
 
-	@ls target/wasm32-wasi/debug/*.wasm | while read name; do \
+	@ls target/wasm32-wasip1/debug/*.wasm | while read name; do \
 		newFilename=$$(echo $$name | sed 's/\.wasm/.debug.wasm/g'); \
 		for i in $(wasi_white_list); do \
 			if [ "$$i" = "$$(basename $$name | sed 's/\.wasm//g')" ]; then \
