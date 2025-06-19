@@ -4,8 +4,8 @@ build:
 	cargo build
 	cargo build --release
 
-	cargo build --target wasm32-wasi
-	cargo build --target wasm32-wasi --release
+	cargo build --target wasm32-wasip1
+	cargo build --target wasm32-wasip1 --release
 
 	@find . -type f -name Makefile | grep -v "^./Makefile" | while read dir; do \
 		echo "Executing in $$dir"; \
