@@ -1,5 +1,5 @@
 [workspace]
-members = ["count_vowels", "http", "greet", "memory"]
+members = ["count_vowels", "http", "greet", "memory", "read_write"]
 resolver = "2"
 
 [workspace.dependencies]
