@@ -1,5 +1,6 @@
 use extism_pdk::*;
 use serde::{Deserialize, Serialize};
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PluginMetadata {
     pub name: String,
@@ -13,6 +14,7 @@ pub struct PluginMetadata {
     pub keywords: Vec<String>,
     pub api_version: String,
 }
+
 #[derive(Serialize, Deserialize)]
 pub struct PluginManifest {
     pub metadata: PluginMetadata,
@@ -20,6 +22,7 @@ pub struct PluginManifest {
     pub ui_available: bool,
     pub event_handlers: Vec<String>,
 }
+
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum UIElement {
@@ -65,43 +68,49 @@ pub enum UIElement {
         style: Option<serde_json::Value>,
     },
 }
+
 #[derive(Serialize, Deserialize)]
 pub struct SelectOption {
     pub value: String,
     pub label: String,
 }
+
 #[derive(Serialize, Deserialize)]
 pub struct UIResponse {
     pub ui: UIElement,
     pub state: Option<serde_json::Value>,
 }
+
 #[derive(Deserialize)]
 pub struct EventPayload {
     pub id: String,
     pub event_type: String,
     pub data: Option<serde_json::Value>,
 }
+
 #[derive(Serialize)]
 pub struct EventResponse {
     pub updates: Vec<UIUpdate>,
     pub state: Option<serde_json::Value>,
     pub notifications: Option<Vec<Notification>>,
 }
+
 #[derive(Serialize)]
 pub struct UIUpdate {
     pub target_id: String,
     pub update_type: String,
     pub data: serde_json::Value,
 }
+
 #[derive(Serialize)]
 pub struct Notification {
     pub level: String,
     pub message: String,
     pub duration: Option<u32>,
 }
-#[plugin_fn]
-pub fn get_manifest(_input: String) -> FnResult<String> {
-    let metadata = PluginMetadata {
+
+fn create_metadata() -> PluginMetadata {
+    PluginMetadata {
         name: "Example Plugin".to_string(),
         version: "1.0.0".to_string(),
         description: "A sample plugin demonstrating UI capabilities".to_string(),
@@ -112,7 +121,12 @@ pub fn get_manifest(_input: String) -> FnResult<String> {
         repository: Some("https://github.com/example/plugin".to_string()),
         keywords: vec!["example".to_string(), "ui".to_string(), "demo".to_string()],
         api_version: "1.0".to_string(),
-    };
+    }
+}
+
+#[plugin_fn]
+pub fn get_manifest(_input: String) -> FnResult<String> {
+    let metadata = create_metadata();
     let manifest = PluginManifest {
         metadata,
         capabilities: vec![
@@ -127,24 +141,16 @@ pub fn get_manifest(_input: String) -> FnResult<String> {
             "handle_select_change".to_string(),
         ],
     };
-    Ok(serde_json::to_string(&manifest)?)
+
+    Ok(serde_json::to_string(&manifest).unwrap_or_else(|_| "{}".to_string()))
 }
+
 #[plugin_fn]
 pub fn get_metadata(_input: String) -> FnResult<String> {
-    let metadata = PluginMetadata {
-        name: "Example Plugin".to_string(),
-        version: "1.0.0".to_string(),
-        description: "A sample plugin demonstrating UI capabilities".to_string(),
-        author: "Plugin Developer".to_string(),
-        logo: Some("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjRkY2NTAwIi8+Cjwvc3ZnPgo=".to_string()),
-        license: Some("MIT".to_string()),
-        homepage: Some("https://example.com".to_string()),
-        repository: Some("https://github.com/example/plugin".to_string()),
-        keywords: vec!["example".to_string(), "ui".to_string(), "demo".to_string()],
-        api_version: "1.0".to_string(),
-    };
-    Ok(serde_json::to_string(&metadata)?)
+    let metadata = create_metadata();
+    Ok(serde_json::to_string(&metadata).unwrap_or_else(|_| "{}".to_string()))
 }
+
 #[plugin_fn]
 pub fn get_ui(_input: String) -> FnResult<String> {
     let ui = UIElement::Container {
@@ -218,6 +224,7 @@ pub fn get_ui(_input: String) -> FnResult<String> {
             },
         ],
     };
+
     let response = UIResponse {
         ui,
         state: Some(serde_json::json!({
@@ -226,13 +233,32 @@ pub fn get_ui(_input: String) -> FnResult<String> {
             "click_count": 0
         })),
     };
-    Ok(serde_json::to_string(&response)?)
+
+    Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()))
 }
+
 #[plugin_fn]
 pub fn handle_event(input: String) -> FnResult<String> {
-    let event: EventPayload = serde_json::from_str(&input)?;
+    let event: EventPayload = match serde_json::from_str(&input) {
+        Ok(event) => event,
+        Err(_) => {
+            // Return a basic error response if parsing fails
+            let response = EventResponse {
+                updates: vec![],
+                state: None,
+                notifications: Some(vec![Notification {
+                    level: "error".to_string(),
+                    message: "Failed to parse event".to_string(),
+                    duration: Some(3000),
+                }]),
+            };
+            return Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()));
+        }
+    };
+
     let mut updates = Vec::new();
     let mut notifications = Vec::new();
+
     match event.id.as_str() {
         "handle_click" => {
             updates.push(UIUpdate {
@@ -249,33 +275,37 @@ pub fn handle_event(input: String) -> FnResult<String> {
             });
         }
         "handle_input_change" => {
-            if let Some(data) = event.data {
+            if let Some(data) = &event.data {
                 if let Some(value) = data.get("value") {
-                    updates.push(UIUpdate {
-                        target_id: "welcome".to_string(),
-                        update_type: "replace".to_string(),
-                        data: serde_json::json!({
-                            "value": format!("You typed: {}", value.as_str().unwrap_or(""))
-                        }),
-                    });
+                    if let Some(text) = value.as_str() {
+                        updates.push(UIUpdate {
+                            target_id: "welcome".to_string(),
+                            update_type: "replace".to_string(),
+                            data: serde_json::json!({
+                                "value": format!("You typed: {}", text)
+                            }),
+                        });
+                    }
                 }
             }
         }
         "handle_select_change" => {
-            if let Some(data) = event.data {
+            if let Some(data) = &event.data {
                 if let Some(value) = data.get("value") {
-                    updates.push(UIUpdate {
-                        target_id: "welcome".to_string(),
-                        update_type: "replace".to_string(),
-                        data: serde_json::json!({
-                            "value": format!("Mode changed to: {}", value.as_str().unwrap_or(""))
-                        }),
-                    });
-                    notifications.push(Notification {
-                        level: "info".to_string(),
-                        message: format!("Switched to {} mode", value.as_str().unwrap_or("")),
-                        duration: Some(2000),
-                    });
+                    if let Some(mode_str) = value.as_str() {
+                        updates.push(UIUpdate {
+                            target_id: "welcome".to_string(),
+                            update_type: "replace".to_string(),
+                            data: serde_json::json!({
+                                "value": format!("Mode changed to: {}", mode_str)
+                            }),
+                        });
+                        notifications.push(Notification {
+                            level: "info".to_string(),
+                            message: format!("Switched to {} mode", mode_str),
+                            duration: Some(2000),
+                        });
+                    }
                 }
             }
         }
@@ -287,11 +317,12 @@ pub fn handle_event(input: String) -> FnResult<String> {
             });
         }
     }
+
     let response = EventResponse {
         updates,
         state: Some(serde_json::json!({
             "last_event": event.id,
-            "timestamp": chrono::Utc::now().timestamp()
+            "event_count": 1
         })),
         notifications: if notifications.is_empty() {
             None
@@ -299,5 +330,6 @@ pub fn handle_event(input: String) -> FnResult<String> {
             Some(notifications)
         },
     };
-    Ok(serde_json::to_string(&response)?)
+
+    Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()))
 }
