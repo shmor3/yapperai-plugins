@@ -24,7 +24,7 @@ pub struct PluginManifest {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum UIElement {
     #[serde(rename = "container")]
     Container {
@@ -67,6 +67,8 @@ pub enum UIElement {
         on_change: Option<String>,
         style: Option<serde_json::Value>,
     },
+    #[serde(rename = "wasm")]
+    WasmUI { mount_script: String },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -115,7 +117,7 @@ fn create_metadata() -> PluginMetadata {
         version: "1.0.0".to_string(),
         description: "A sample plugin demonstrating UI capabilities".to_string(),
         author: "Plugin Developer".to_string(),
-        logo: Some("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjRkY2NTAwIi8+Cjwvc3ZnPgo=".to_string()),
+        logo: Some("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA9TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjRkY2NTAwIi8+Cjwvc3ZnPgo=".to_string()),
         license: Some("MIT".to_string()),
         homepage: Some("https://example.com".to_string()),
         repository: Some("https://github.com/example/plugin".to_string()),
@@ -141,7 +143,6 @@ pub fn get_manifest(_input: String) -> FnResult<String> {
             "handle_select_change".to_string(),
         ],
     };
-
     Ok(serde_json::to_string(&manifest).unwrap_or_else(|_| "{}".to_string()))
 }
 
@@ -154,87 +155,49 @@ pub fn get_metadata(_input: String) -> FnResult<String> {
 #[plugin_fn]
 pub fn get_ui(_input: String) -> FnResult<String> {
     let ui = UIElement::Container {
-        id: Some("main_container".to_string()),
+        id: Some("root".to_string()),
         direction: "column".to_string(),
-        style: Some(serde_json::json!({
-            "padding": "16px",
-            "gap": "12px",
-            "backgroundColor": "#f5f5f5",
-            "borderRadius": "8px"
-        })),
+        style: None,
         children: vec![
             UIElement::Text {
                 id: "welcome".to_string(),
-                value: "Hello from Example Plugin!".to_string(),
-                style: Some(serde_json::json!({
-                    "fontSize": "18px",
-                    "fontWeight": "bold",
-                    "color": "#333"
-                })),
+                value: "Welcome to the Example Plugin!".to_string(),
+                style: None,
             },
             UIElement::Input {
-                id: "user_input".to_string(),
-                placeholder: Some("Enter your message...".to_string()),
+                id: "input".to_string(),
+                placeholder: Some("Type something...".to_string()),
                 value: None,
                 input_type: Some("text".to_string()),
                 on_change: Some("handle_input_change".to_string()),
-                style: Some(serde_json::json!({
-                    "padding": "8px",
-                    "borderRadius": "4px",
-                    "border": "1px solid #ddd"
-                })),
+                style: None,
             },
             UIElement::Select {
-                id: "mode_select".to_string(),
+                id: "mode".to_string(),
                 options: vec![
                     SelectOption {
-                        value: "casual".to_string(),
-                        label: "Casual Mode".to_string(),
+                        value: "light".to_string(),
+                        label: "Light Mode".to_string(),
                     },
                     SelectOption {
-                        value: "formal".to_string(),
-                        label: "Formal Mode".to_string(),
-                    },
-                    SelectOption {
-                        value: "creative".to_string(),
-                        label: "Creative Mode".to_string(),
+                        value: "dark".to_string(),
+                        label: "Dark Mode".to_string(),
                     },
                 ],
-                selected: Some("casual".to_string()),
+                selected: Some("light".to_string()),
                 on_change: Some("handle_select_change".to_string()),
-                style: Some(serde_json::json!({
-                    "padding": "8px",
-                    "borderRadius": "4px",
-                    "border": "1px solid #ddd"
-                })),
+                style: None,
             },
             UIElement::Button {
-                id: "submit_btn".to_string(),
-                label: "Submit".to_string(),
+                id: "click".to_string(),
+                label: "Click Me".to_string(),
                 on_click: "handle_click".to_string(),
-                disabled: Some(false),
-                style: Some(serde_json::json!({
-                    "padding": "10px 20px",
-                    "backgroundColor": "#007bff",
-                    "color": "white",
-                    "border": "none",
-                    "borderRadius": "4px",
-                    "cursor": "pointer"
-                })),
+                disabled: None,
+                style: None,
             },
         ],
     };
-
-    let response = UIResponse {
-        ui,
-        state: Some(serde_json::json!({
-            "current_mode": "casual",
-            "user_input": "",
-            "click_count": 0
-        })),
-    };
-
-    Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()))
+    Ok(serde_json::to_string(&ui).unwrap_or_else(|_| "{}".to_string()))
 }
 
 #[plugin_fn]
@@ -242,7 +205,6 @@ pub fn handle_event(input: String) -> FnResult<String> {
     let event: EventPayload = match serde_json::from_str(&input) {
         Ok(event) => event,
         Err(_) => {
-            // Return a basic error response if parsing fails
             let response = EventResponse {
                 updates: vec![],
                 state: None,
@@ -255,10 +217,8 @@ pub fn handle_event(input: String) -> FnResult<String> {
             return Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()));
         }
     };
-
     let mut updates = Vec::new();
     let mut notifications = Vec::new();
-
     match event.id.as_str() {
         "handle_click" => {
             updates.push(UIUpdate {
@@ -317,7 +277,6 @@ pub fn handle_event(input: String) -> FnResult<String> {
             });
         }
     }
-
     let response = EventResponse {
         updates,
         state: Some(serde_json::json!({
@@ -330,6 +289,5 @@ pub fn handle_event(input: String) -> FnResult<String> {
             Some(notifications)
         },
     };
-
     Ok(serde_json::to_string(&response).unwrap_or_else(|_| "{}".to_string()))
 }
