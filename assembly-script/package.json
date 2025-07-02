@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "asc ./src/index.ts --outFile ./dist/output.wasm --use abort=src/index/myAbort"
+  },
+  "dependencies": {
+    "@extism/as-pdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.28.0"
+  }
+}

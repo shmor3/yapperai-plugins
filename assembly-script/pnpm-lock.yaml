@@ -1,0 +1,47 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@extism/as-pdk':
+        specifier: ^1.0.0
+        version: 1.0.0
+    devDependencies:
+      assemblyscript:
+        specifier: ^0.28.0
+        version: 0.28.2
+
+packages:
+
+  '@extism/as-pdk@1.0.0':
+    resolution: {integrity: sha512-sD5xQskoOWoSeH73HltP7rJXR/E5nk1BTne8bmHdCxqMLUR0n/L1KdmRsPdl7XqNnJj2Anvs9QN0sJ+b+6K05g==}
+
+  assemblyscript@0.28.2:
+    resolution: {integrity: sha512-0j6kQdfKqRgmkY9zIzpFVcsLW8lMZ61pIZmmXJNiJeN2rvaHCCBSzHOoFNBh2jlvQNijY2/uxuufnSQma8HmFQ==}
+    engines: {node: '>=20', npm: '>=10'}
+    hasBin: true
+
+  binaryen@123.0.0-nightly.20250530:
+    resolution: {integrity: sha512-d1zPHBN5YlOd3Ff+OUxvVExuFeh8heSnqe+X3bjItFxGLvn4VGBKmrvv7pgy/cRhrIUGuPW138iaWfDhwjyDqg==}
+    hasBin: true
+
+  long@5.3.2:
+    resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
+
+snapshots:
+
+  '@extism/as-pdk@1.0.0': {}
+
+  assemblyscript@0.28.2:
+    dependencies:
+      binaryen: 123.0.0-nightly.20250530
+      long: 5.3.2
+
+  binaryen@123.0.0-nightly.20250530: {}
+
+  long@5.3.2: {}
