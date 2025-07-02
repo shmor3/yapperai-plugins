@@ -40,7 +40,7 @@ export function count_vowels(): i32 {
   const thing = Config.get("thing");
 
   // write data back to host for use in program
-  var out = '{"count": ' + var_count + ', "config": "' + (thing == null ? "null" : thing) + '", "a": "' + var_a + '"}';
+  var out = '{"count": ' + var_count + ', "config": "' + (thing == null ? "null" : thing) + '", "a": "' + var_a + '"} - bitch';
   Host.outputString(out);
   Var.remove('a');
 

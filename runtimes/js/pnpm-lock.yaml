@@ -1,0 +1,32 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@extism/extism':
+        specifier: 2.0.0-rc13
+        version: 2.0.0-rc13
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
+
+packages:
+
+  '@extism/extism@2.0.0-rc13':
+    resolution: {integrity: sha512-iQ3mrPKOC0WMZ94fuJrKbJmMyz4LQ9Abf8gd4F5ShxKWa+cRKcVzk0EqRQsp5xXsQ2dO3zJTiA6eTc4Ihf7k+A==}
+
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+snapshots:
+
+  '@extism/extism@2.0.0-rc13': {}
+
+  typescript@5.8.3: {}

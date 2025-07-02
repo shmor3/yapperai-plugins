@@ -1,0 +1,11 @@
+{
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"start": "npm run build && node ./dist/index.js"
+	},
+	"dependencies": {
+		"@extism/extism": "2.0.0-rc13",
+		"typescript": "^5.0.0"
+	}
+}
