@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "asc ./src/index.ts --outFile ./dist/assemblyscript.wasm"
+  },
+  "dependencies": {
+    "@extism/as-pdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.28.0"
+  }
+}
