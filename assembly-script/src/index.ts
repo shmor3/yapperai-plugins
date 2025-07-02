@@ -1,4 +1,4 @@
-import { Host, Var, Config } from '@extism/as-pdk';
+import { Host, Var, Config,  } from '@extism/as-pdk';
 
 function myAbort(
   message: string | null,
@@ -27,15 +27,20 @@ export function count_vowels(): i32 {
   // persistent variables (scoped to individual plugin)
   var a = Uint8Array.wrap(String.UTF8.encode("this is var a"))
   Var.set('a', a);
+  // Convert count to a Uint8Array before storing
+  Var.set('count', Uint8Array.wrap(String.UTF8.encode(count.toString())));
 
   let data = Var.get('a');
   let var_a = (data == null) ? "null" : String.UTF8.decode(data.buffer);
+
+  let count_data = Var.get('count');
+  let var_count = (count_data == null) ? "null" : String.UTF8.decode(count_data.buffer);
 
   // config, provided by the host
   const thing = Config.get("thing");
 
   // write data back to host for use in program
-  var out = '{"count": ' + count.toString() + ', "config": "' + (thing == null ? "null" : thing) + '", "a": "' + var_a + '"}';
+  var out = '{"count": ' + var_count + ', "config": "' + (thing == null ? "null" : thing) + '", "a": "' + var_a + '"}';
   Host.outputString(out);
   Var.remove('a');
 
